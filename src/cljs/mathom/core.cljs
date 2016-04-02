@@ -2,12 +2,30 @@
 (ns mathom.core
   (:require
             [m]
-            [devtools.core :as devtools]))
+            [devtools.core :as devtools]
+            [cljs.reader :refer [read-string]]
+            [cljs.js :refer [empty-state eval js-eval]]
+            [cljs.pprint :refer [pprint]]
+            ))
 
 (enable-console-print!)
 
 (devtools/set-pref! :install-sanity-hints true)
 (devtools/install!)
+
+(defn serialize-edn
+  "Serialize given data structure into string"
+  [data]
+  (with-out-str (cljs.pprint/pprint data)))
+
+(defn eval-str [s]
+  "Evaluate given string to Cljs data structure"
+  (eval (empty-state)
+        (read-string s)
+        {:eval       js-eval
+         :source-map true
+         :context    :expr}
+        (fn [result] result)))
 
 (defn set-item!
   "Set `key' in browser's localStorage to `val`."

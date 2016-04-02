@@ -13,4 +13,5 @@ pom.xml.asc
 boot-project.iml
 /out/
 *~
-
+/.idea/
+.nrepl-history

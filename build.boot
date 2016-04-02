@@ -14,6 +14,7 @@
                  [com.cognitect/transit-cljs "0.8.237"] ;; Transit for data
                  [markdown-clj "0.9.85"]                ;; Markdown for export
                  [binaryage/devtools "0.5.2"]           ;; For sanity
+                 [org.clojure/tools.reader "0.10.0"]
                 ])
 
 (require '[adzerk.boot-cljs :refer [cljs]]
