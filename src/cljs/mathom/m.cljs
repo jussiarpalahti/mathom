@@ -40,3 +40,12 @@
   "Render instance of js/Date according to format"
   (let [format (new goog.i18n.DateTimeFormat format)]
     (.format format d)))
+
+;
+; Edit helpers
+;
+
+(defn text [name value size cb]
+  (nm "input[type=text]"
+      {:value value :placeholder name :size size
+       :onchange #(cb (-> % .-target .-value))}))

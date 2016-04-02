@@ -6,7 +6,7 @@
             [cljs.reader :refer [read-string]]
             [cljs.js :refer [empty-state eval js-eval]]
             [cljs.pprint :refer [pprint]]
-            [mathom.m :refer [nm request route_param]]
+            [mathom.m :refer [nm request route_param text]]
             ))
 
 (enable-console-print!)
@@ -85,9 +85,11 @@
 
 (defn index_view
   [{:keys [update query]} ctrl]
-  (nm "div"
+  (let [username (query :username)]
+    (nm "div"
       [(nm "h1" "My Mithril app with my data!")
-       (nm "div" (query :username))]))
+       (nm "div" username)
+       (text "username" username 40 #(update :username %))])))
 
 (def index-app-db
   (let [db (deserialize-local "data")]
