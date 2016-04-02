@@ -1,2 +1,4 @@
-# mathom
-Clojurescript utils for Mithril.js
+
+# Clojure & Mithril web development environment
+
+First steps.

@@ -1,0 +1,97 @@
+
+html {
+	padding:1em;
+	background-color: rgba(255, 227, 189, 0.43);
+}
+
+.level1 {
+	margin: 0.3em 1em;
+}
+
+.level2 {
+	margin: 0.3em 2em;
+}
+
+.level3 {
+	margin: 0.3em 3em;
+}
+
+.level4 {
+	margin: 0.3em 4em;
+}
+
+div.pure-g div {
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+}
+
+.ftype {
+	margin-left: -1em;
+	margin-right: 0.3em;
+}
+
+#serialization {
+	width: 80%;
+	height: 80%;
+	position: absolute;
+	overflow: auto;
+	top: 10%;
+	left: 10%;
+	background-color: goldenrod;
+}
+
+#serialization textarea {
+	width: 90%;
+	height: 90%;
+	background-color: goldenrod;
+	margin: 1em 2em;
+	border: 1px dashed;
+}
+
+#nav div, #pages {
+	margin: 0.2em 0.1em;
+}
+
+#editor input, #editor button {
+	margin: 0.1em;
+}
+
+.button-success, .link, .pagelink {
+	color: white;
+	border-radius: 4px;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+	background: rgb(28, 184, 65); /* this is a green */
+	font-size: 110%;
+}
+
+.link {
+	background: rgb(66, 184, 221); /* this is a light blue */
+	padding: 0.4em 0.6em;
+}
+
+.link:hover {
+	background-color: mediumblue;
+}
+
+.itemtitle {
+	width: 20em;
+}
+.datatable, .editortable {
+	min-width: 50%;
+	margin: 0.6em 0;
+}
+
+.pagelink {
+	min-width: 10em;
+	width: 10em;
+	padding: 0.4em 0.6em;
+	margin: 0.1em;
+}
+
+.pagelink a:visited {
+	color: white;
+}
+
+.emptypage {
+	color: rgb(28, 184, 65); /* this is a green */
+}
