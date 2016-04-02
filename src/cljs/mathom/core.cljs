@@ -74,22 +74,25 @@
 ;;
 
 (defn initialize-db
-  "Creates closure based database
-  of the map given as data"
+  "Creates closure for app database
+  from given data as base map"
   [data]
   (let [cdb (atom data)]
-    {:update (fn [key val]
-               (swap! cdb #(assoc % key val)))
-     :query (fn [key]
-              (get @cdb key))}))
+    {:update    (fn [key val]
+                  (swap! cdb #(assoc % key val)))
+     :query     (fn [key]
+                  (get @cdb key))
+     :serialize (fn [] (serialize-local "data" @cdb))}))
 
 (defn index_view
-  [{:keys [update query]} ctrl]
+  [{:keys [update query serialize]} ctrl]
   (let [username (query :username)]
     (nm "div"
-      [(nm "h1" "My Mithril app with my data!")
+      [(nm "h1" "Mithril app with data persistence")
        (nm "div" username)
-       (text "username" username 40 #(update :username %))])))
+       (nm "div" [(text "username" username 40 #(update :username %))
+                  (nm "button.pure-button" {:onclick #(serialize)} "Persist")])
+       (nm "div" [(nm "textarea" {"rows" 10 "cols" 40} (get-item "data"))])])))
 
 (def index-app-db
   (let [db (deserialize-local "data")]
