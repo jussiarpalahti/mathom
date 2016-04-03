@@ -32,8 +32,11 @@
     (swap! tool #(assoc @tool :bar tb)) ; To get access to generated node
     ))
 
+(defn handle-event
+  [eib])
+
 (defn attach-listener
-  [cbdb]
+  []
   (.addEventListener (:bar @tool)
                      "click"
-                     #((get cbdb (aget (.-target %) "id")))))
+                     #(handle-event (aget (.-target %) "id"))))

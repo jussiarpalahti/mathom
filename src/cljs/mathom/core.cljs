@@ -7,7 +7,7 @@
             [cljs.js :refer [empty-state eval js-eval]]
             [cljs.pprint :refer [pprint]]
             [mathom.m :refer [nm request route_param text]]
-            [mathom.toolbar]
+            [mathom.toolbar :as toolbar]
             ))
 
 ;
@@ -25,6 +25,18 @@
 
 ; Tooldb is for Mithril runtime tools like state store
 (def tooldb (atom {:active_state nil :states []}))
+
+(defn handle-event
+  [eid]
+  (case eid
+    "mathom_toolbar_prev" (prev-state)
+    "mathom_toolbar_next" (next-state)))
+
+(defn setup-toolbar
+  []
+  (toolbar/setup)
+  (binding [handle-event]
+    (toolbar/attach-listener)))
 
 (defn save-route
   "Persist route into state db
