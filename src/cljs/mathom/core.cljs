@@ -9,20 +9,34 @@
             [mathom.m :refer [nm request route_param text]]
             ))
 
+;
+; ClojureScript helpers
+;
+
 (enable-console-print!)
 
 (devtools/set-pref! :install-sanity-hints true)
 (devtools/install!)
 
+;
+; App dev helpers
+;
+
 ; Tooldb is for Mithril runtime tools like state store
 (def tooldb (atom {:active_state nil :states []}))
+
+(defn save-route
+  "Persist route into state db
+  under cleverly hidden ::meta structure"
+  [state]
+  (assoc state ::meta {:route (.route js/m)}))
 
 (defn save-state
   "Saves state into tooldb :states array and sets
   active_state point to last item of array"
   [state]
-  (swap! tooldb update-in [:states] #(conj % state))
-  (swap! tooldb update-in [:active_state] #(- (count (:states @tooldb)) 1)))
+  (swap! tooldb update-in [:states] #(conj % (save-route state)))
+  (swap! tooldb update-in [:active_state] #(dec (count (:states @tooldb)))))
 
 (defn serialize-edn
   "Serialize given data structure into string"
@@ -80,7 +94,7 @@
       (eval-str s))))
 
 ;;
-;; APP
+;; Sample App
 ;;
 
 (defn initialize-db
@@ -88,21 +102,21 @@
   from given data as base map"
   [data]
   (let [cdb (atom data)]
-    {:update    (fn [key val]
-                  (save-state @cdb)
-                  (swap! cdb #(assoc % key val)))
-     :query     (fn [key]
-                  (get @cdb key))
-     :save (fn [] (save-state @cdb))}))
+    {:update  (fn [key val]
+                (swap! cdb #(assoc % key val))
+                (save-state @cdb))
+     :query   (fn [key]
+                (get @cdb key))
+     :persist (fn [] (serialize-local "data" (save-route @cdb)))}))
 
 (defn index_view
-  [{:keys [update query save]} ctrl]
+  [{:keys [update query persist]} ctrl]
   (let [username (query :username)]
     (nm "div"
       [(nm "h1" "Mithril app with data persistence")
        (nm "div" username)
        (nm "div" [(text "username" username 40 #(update :username %))
-                  (nm "button.pure-button" {:onclick #(save)} "Persist")])
+                  (nm "button.pure-button" {:onclick #(persist)} "Persist")])
        (nm "div" [(nm "textarea" {"rows" 10 "cols" 40} (get-item "data"))])])))
 
 (def index-app-db
