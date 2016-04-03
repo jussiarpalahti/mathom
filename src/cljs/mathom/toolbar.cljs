@@ -9,16 +9,6 @@
     (if (not (nil? prev))
       (.remove prev))))
 
-(defn setup
-  []
-  (let [body (aget (.getElementsByTagName js/document "body") 0)
-        tb (.createElement js/document "div")]
-    (clean)
-    (.setAttribute tb "id" "mathom_toolbar")
-    (.appendChild body tb)
-    (swap! tool #(assoc @tool :bar tb)) ; To get access to generated node
-    ))
-
 (defn set-content
   [content]
   (set! (.-innerHTML (:bar @tool)) content))
@@ -31,6 +21,19 @@
 <div id=\"mathom_toolbar_states\"></div>
 </div>")
 
-(defn attach-listener
+(defn setup
   []
-  (.addEventListener (:bar @tool) "click" #(println "que" (aget (.-target %) "id"))))
+  (let [body (aget (.getElementsByTagName js/document "body") 0)
+        tb (.createElement js/document "div")]
+    (clean)
+    (.setAttribute tb "id" "mathom_toolbar")
+    (.appendChild body tb)
+    (set-content content)
+    (swap! tool #(assoc @tool :bar tb)) ; To get access to generated node
+    ))
+
+(defn attach-listener
+  [cbdb]
+  (.addEventListener (:bar @tool)
+                     "click"
+                     #((get cbdb (aget (.-target %) "id")))))
