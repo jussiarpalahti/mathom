@@ -7,6 +7,7 @@
             [cljs.js :refer [empty-state eval js-eval]]
             [cljs.pprint :refer [pprint]]
             [mathom.m :refer [nm request route_param text]]
+            [mathom.toolbar]
             ))
 
 ;
