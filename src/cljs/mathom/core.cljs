@@ -14,6 +14,16 @@
 (devtools/set-pref! :install-sanity-hints true)
 (devtools/install!)
 
+; Tooldb is for Mithril runtime tools like state store
+(def tooldb (atom {:active_state nil :states []}))
+
+(defn save-state
+  "Saves state into tooldb :states array and sets
+  active_state point to last item of array"
+  [state]
+  (swap! tooldb update-in [:states] #(conj % state))
+  (swap! tooldb update-in [:active_state] #(- (count (:states @tooldb)) 1)))
+
 (defn serialize-edn
   "Serialize given data structure into string"
   [data]
@@ -79,19 +89,20 @@
   [data]
   (let [cdb (atom data)]
     {:update    (fn [key val]
+                  (save-state @cdb)
                   (swap! cdb #(assoc % key val)))
      :query     (fn [key]
                   (get @cdb key))
-     :serialize (fn [] (serialize-local "data" @cdb))}))
+     :save (fn [] (save-state @cdb))}))
 
 (defn index_view
-  [{:keys [update query serialize]} ctrl]
+  [{:keys [update query save]} ctrl]
   (let [username (query :username)]
     (nm "div"
       [(nm "h1" "Mithril app with data persistence")
        (nm "div" username)
        (nm "div" [(text "username" username 40 #(update :username %))
-                  (nm "button.pure-button" {:onclick #(serialize)} "Persist")])
+                  (nm "button.pure-button" {:onclick #(save)} "Persist")])
        (nm "div" [(nm "textarea" {"rows" 10 "cols" 40} (get-item "data"))])])))
 
 (def index-app-db
@@ -131,6 +142,7 @@
 ; movement and selection is through various arrows and M and/or S
 ; Wrappers now work with Cmd + whatever is necessary to add the closing wrapping
 ; Like Cmd-s-9 when s-9 is ), or Cmd-M-9 for ] and Cmd-M-S-9 for }
+; Remember: 9 is for ending (I guess), not 8 for starting the wrap
 ; Kill is the regular C-k, it works from cursor to form end, which is ), ], " or }
 ; Raise actually works now, because Cmd-' is seen by IntelliJ as Cmd-\ for some reason...
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
