@@ -60,3 +60,10 @@
        (if (not(empty? attrs)) (str " " (d-to-s attrs))) ">"
        (if (not(empty? children)) (clojure.string/join " " children))
        "</" tag ">"))
+
+
+(defn esc-s
+  "Escape things bad for HTML"
+  [s]
+  (clojure.string/escape s
+                         {\< "&lt;", \> "&gt;", \& "&amp;"}))
