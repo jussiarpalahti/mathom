@@ -29,8 +29,8 @@
     (.setAttribute tb "id" "mathom_toolbar")
     (.appendChild body tb)
     (set-content content)
-    (swap! tool #(assoc @tool :bar tb)) ; To get access to generated node
-    ))
+    (swap! tool #(assoc @tool :bar tb)))) ; To get access to generated node
+
 
 (defn handle-event
   [eib])
@@ -40,3 +40,23 @@
   (.addEventListener (:bar @tool)
                      "click"
                      #(handle-event (aget (.-target %) "id"))))
+
+
+(defn d-to-s
+  "Returns stringified version
+  of given map in HTML/XML
+  attribute style"
+  [d]
+  (clojure.string/join " "
+                       (for [[k v] d]
+                         (str (name k) "=\"" v "\""))))
+
+
+(defn h
+  "Returns a string resembling
+  HTML tag, attributes and children"
+  [tag attrs children]
+  (str "<" tag
+       (if (not(empty? attrs)) (str " " (d-to-s attrs))) ">"
+       (if (not(empty? children)) (clojure.string/join " " children))
+       "</" tag ">"))
