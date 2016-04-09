@@ -58,11 +58,8 @@
 
 (defn setup
   []
-  (let [prevtb (.getElementById js/document "mathom_toolbar")
-        tb (cond
-             (not (nil? prevtb)) prevtb
-             :else (create-tb))]
-    (swap! tool #(assoc @tool :bar tb)))) ; To get access to generated node
+  (swap! tool
+         #(assoc @tool :bar (.getElementById js/document "mathom_toolbar"))))
 
 (defn render
   [statedb]
@@ -70,7 +67,7 @@
         active (:active_state statedb)
         prev (if (and active (> active 0)) true false)
         next (if (and active (< active (dec (count states)))) true false)]
-    (set-content (:bar @tool)
+    (set-content (.getElementById js/document "mathom_toolbar")
                  (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
                               (h "button"
                                  {:id       "mathom_toolbar_prev"
@@ -95,6 +92,6 @@
 
 (defn attach-listener
   [fun]
-  (.addEventListener (:bar @tool)
+  (.addEventListener (.getElementById js/document "mathom_toolbar")
                      "click"
                      #(fun (aget (.-target %) "id"))))

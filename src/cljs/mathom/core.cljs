@@ -31,6 +31,12 @@
 
 ; Tooldb is for Mithril runtime tools like state store
 (def tooldb (atom {:active_state nil :states []}))
+(declare serialize-local)
+
+(defn slice-states
+  [states state active]
+  (let [cursor (if (nil? active) (count states) (inc active))]
+    (conj (subvec states 0 cursor) state)))
 
 (defn save-route
   "Persist route into state db
@@ -42,14 +48,17 @@
   "Saves state into tooldb :states array and sets
   active_state point to last item of array"
   [state]
-  (swap! tooldb update-in [:states] #(conj % (save-route state)))
+  (swap! tooldb update-in [:states]
+         #(slice-states % (save-route state) (:active_state @tooldb)))
   (swap! tooldb update-in [:active_state] #(dec (count (:states @tooldb))))
+  (serialize-local "tooldb" @tooldb)
   (toolbar/render @tooldb))
 
 (defn set-app-state
   [state]
   (reset! appdb state)
-  (.route js/m (get-in state [::meta :route])))
+  ;(.route js/m (get-in state [::meta :route]))
+  (.redraw js/m))
 
 (defn serialize-edn
   "Serialize given data structure into string"
@@ -126,9 +135,11 @@
 
 (defn setup-toolbar
   []
-  (toolbar/setup)
-  (toolbar/render @tooldb)
-  (toolbar/attach-listener rewind))
+  (let [tdb (deserialize-local "tooldb")]
+    (if (not (nil? tdb))
+      (reset! tooldb tdb))
+    (toolbar/render tdb)
+    (toolbar/attach-listener rewind)))
 
 
 ;;
