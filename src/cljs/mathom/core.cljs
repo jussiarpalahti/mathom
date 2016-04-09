@@ -57,8 +57,10 @@
 (defn set-app-state
   [state]
   (reset! appdb state)
-  ;(.route js/m (get-in state [::meta :route]))
-  (.redraw js/m))
+  (let [stored_route (get-in state [::meta :route])]
+    (if (= (.route js/m) stored_route)
+      (.redraw js/m)
+      (.route js/m stored_route))))
 
 (defn serialize-edn
   "Serialize given data structure into string"
@@ -189,7 +191,7 @@
             (clj->js {"/" index}))))
 
 (setup)
-(.route js/m "/")
+;(.route js/m "/")
 
 (setup-toolbar)
 
