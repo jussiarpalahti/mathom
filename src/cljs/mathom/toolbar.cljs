@@ -1,7 +1,7 @@
 
 (ns mathom.toolbar)
 
-(def tool (atom {:selected nil}))
+(def tool (atom {}))
 
 (defn clean
   []
@@ -28,7 +28,8 @@
   [d]
   (clojure.string/join " "
                        (for [[k v] d]
-                         (str (name k) "=\"" v "\""))))
+                         (if v
+                           (str (name k) "=\"" v "\"")))))
 
 
 (defn h
@@ -59,11 +60,21 @@
 (defn render
   [statedb]
   (let [states (:states statedb)
-        active (:active_state statedb)]
+        active (:active_state statedb)
+        prev (if (> active 0) true false)
+        next (if (= active (count states)) true false)]
     (set-content (:bar @tool)
                  (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
-                              (h "button" {:id "mathom_toolbar_prev"} ["Previous state"])
-                              (h "button" {:id "mathom_toolbar_next"} ["Next state"])
+                              (h "button"
+                                 {:id       "mathom_toolbar_prev"
+                                  :class "pure-button"
+                                  :disabled (not prev)}
+                                 ["Previous state"])
+                              (h "button"
+                                 {:id       "mathom_toolbar_next"
+                                  :class "pure-button"
+                                  :disabled (not next)}
+                                 ["Next state"])
                               (h "span"
                                  {:id "mathom_toolbar_states"}
                                  ["Saved states: " (count states)
