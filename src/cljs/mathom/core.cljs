@@ -26,7 +26,15 @@
 ; Tooldb is for Mithril runtime tools like state store
 (def tooldb (atom {:active_state nil :states []}))
 
-(defn handle-event
+(defn prev-state
+  []
+  (println "prev"))
+
+(defn next-state
+  []
+  (println "next"))
+
+(defn ^:dynamic handle-event
   [eid]
   (case eid
     "mathom_toolbar_prev" (prev-state)
@@ -154,6 +162,8 @@
 
 (setup)
 (.route js/m "/")
+
+(setup-toolbar)
 
 ; Paredit mnemonics
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

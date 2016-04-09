@@ -10,8 +10,8 @@
       (.remove prev))))
 
 (defn set-content
-  [content]
-  (set! (.-innerHTML (:bar @tool)) content))
+  [content elem]
+  (set! (.-innerHTML elem) content))
 
 (def content "
 <div><h1>Mithril ClojureScript Toolbar</h1>
@@ -20,27 +20,6 @@
 <button id=\"mathom_toolbar_next\">Next state</button>
 <div id=\"mathom_toolbar_states\"></div>
 </div>")
-
-(defn setup
-  []
-  (let [body (aget (.getElementsByTagName js/document "body") 0)
-        tb (.createElement js/document "div")]
-    (clean)
-    (.setAttribute tb "id" "mathom_toolbar")
-    (.appendChild body tb)
-    (set-content content)
-    (swap! tool #(assoc @tool :bar tb)))) ; To get access to generated node
-
-
-(defn handle-event
-  [eib])
-
-(defn attach-listener
-  []
-  (.addEventListener (:bar @tool)
-                     "click"
-                     #(handle-event (aget (.-target %) "id"))))
-
 
 (defn d-to-s
   "Returns stringified version
@@ -67,3 +46,30 @@
   [s]
   (clojure.string/escape s
                          {\< "&lt;", \> "&gt;", \& "&amp;"}))
+
+
+(def hcontent
+  (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
+               (h "div" {} [(h "button" {:id "mathom_toolbar_prev"} ["Previous state"])
+                            (h "button" {:id "mathom_toolbar_next"} ["Next state"])])
+               (h "div" {:id "mathom_toolbar_states"} [])]))
+
+(defn setup
+  []
+  (let [body (aget (.getElementsByTagName js/document "body") 0)
+        tb (.createElement js/document "div")]
+    (clean)
+    (.setAttribute tb "id" "mathom_toolbar")
+    (set-content hcontent tb)
+    (.appendChild body tb)
+    (swap! tool #(assoc @tool :bar tb)))) ; To get access to generated node
+
+
+(defn ^:dynamic handle-event
+  [eib])
+
+(defn attach-listener
+  []
+  (.addEventListener (:bar @tool)
+                     "click"
+                     #(handle-event (aget (.-target %) "id"))))
