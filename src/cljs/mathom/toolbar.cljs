@@ -1,7 +1,7 @@
 
 (ns mathom.toolbar)
 
-(def tool (atom {}))
+(def tool (atom {:selected nil}))
 
 (defn clean
   []
@@ -10,7 +10,7 @@
       (.remove prev))))
 
 (defn set-content
-  [content elem]
+  [elem content]
   (set! (.-innerHTML elem) content))
 
 (def content "
@@ -47,22 +47,28 @@
   (clojure.string/escape s
                          {\< "&lt;", \> "&gt;", \& "&amp;"}))
 
-
-(def hcontent
-  (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
-               (h "div" {} [(h "button" {:id "mathom_toolbar_prev"} ["Previous state"])
-                            (h "button" {:id "mathom_toolbar_next"} ["Next state"])])
-               (h "div" {:id "mathom_toolbar_states"} [])]))
-
 (defn setup
   []
   (let [body (aget (.getElementsByTagName js/document "body") 0)
         tb (.createElement js/document "div")]
     (clean)
     (.setAttribute tb "id" "mathom_toolbar")
-    (set-content hcontent tb)
     (.appendChild body tb)
     (swap! tool #(assoc @tool :bar tb)))) ; To get access to generated node
+
+(defn render
+  [statedb]
+  (let [states (:states statedb)
+        active (:active_state statedb)]
+    (set-content (:bar @tool)
+                 (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
+                              (h "button" {:id "mathom_toolbar_prev"} ["Previous state"])
+                              (h "button" {:id "mathom_toolbar_next"} ["Next state"])
+                              (h "span"
+                                 {:id "mathom_toolbar_states"}
+                                 ["Saved states: " (count states)
+                                  (if active (clojure.string/join
+                                               ["Active state: " (inc active)]))])]))))
 
 
 (defn ^:dynamic handle-event

@@ -43,6 +43,7 @@
 (defn setup-toolbar
   []
   (toolbar/setup)
+  (toolbar/render @tooldb)
   (binding [handle-event]
     (toolbar/attach-listener)))
 
@@ -57,7 +58,8 @@
   active_state point to last item of array"
   [state]
   (swap! tooldb update-in [:states] #(conj % (save-route state)))
-  (swap! tooldb update-in [:active_state] #(dec (count (:states @tooldb)))))
+  (swap! tooldb update-in [:active_state] #(dec (count (:states @tooldb))))
+  (toolbar/render @tooldb))
 
 (defn serialize-edn
   "Serialize given data structure into string"

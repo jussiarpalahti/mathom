@@ -107,3 +107,12 @@ div.pure-g div {
     margin: 0;
     padding: 0 1em;
 }
+
+#mathom_toolbar * {
+    margin: 0.3em;
+}
+
+#mathom_toolbar h1 {
+    display: inline;
+    font-size: 120%;
+}
