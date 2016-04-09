@@ -48,21 +48,28 @@
   (clojure.string/escape s
                          {\< "&lt;", \> "&gt;", \& "&amp;"}))
 
-(defn setup
+(defn create-tb
   []
   (let [body (aget (.getElementsByTagName js/document "body") 0)
         tb (.createElement js/document "div")]
-    (clean)
     (.setAttribute tb "id" "mathom_toolbar")
     (.appendChild body tb)
+    tb))
+
+(defn setup
+  []
+  (let [prevtb (.getElementById js/document "mathom_toolbar")
+        tb (cond
+             (not (nil? prevtb)) prevtb
+             :else (create-tb))]
     (swap! tool #(assoc @tool :bar tb)))) ; To get access to generated node
 
 (defn render
   [statedb]
   (let [states (:states statedb)
         active (:active_state statedb)
-        prev (if (> active 0) true false)
-        next (if (= active (count states)) true false)]
+        prev (if (and active (> active 0)) true false)
+        next (if (and active (< active (dec (count states)))) true false)]
     (set-content (:bar @tool)
                  (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
                               (h "button"
@@ -83,10 +90,11 @@
 
 
 (defn ^:dynamic handle-event
-  [eib])
+  [eib]
+  (println "not eventing"))
 
 (defn attach-listener
-  []
+  [fun]
   (.addEventListener (:bar @tool)
                      "click"
-                     #(handle-event (aget (.-target %) "id"))))
+                     #(fun (aget (.-target %) "id"))))

@@ -20,32 +20,17 @@
 (devtools/install!)
 
 ;
+; App database
+;
+
+(def appdb (atom {}))
+
+;
 ; App dev helpers
 ;
 
 ; Tooldb is for Mithril runtime tools like state store
 (def tooldb (atom {:active_state nil :states []}))
-
-(defn prev-state
-  []
-  (println "prev"))
-
-(defn next-state
-  []
-  (println "next"))
-
-(defn ^:dynamic handle-event
-  [eid]
-  (case eid
-    "mathom_toolbar_prev" (prev-state)
-    "mathom_toolbar_next" (next-state)))
-
-(defn setup-toolbar
-  []
-  (toolbar/setup)
-  (toolbar/render @tooldb)
-  (binding [handle-event]
-    (toolbar/attach-listener)))
 
 (defn save-route
   "Persist route into state db
@@ -63,7 +48,8 @@
 
 (defn set-app-state
   [state]
-  )
+  (reset! appdb state)
+  (.route js/m (get-in state [::meta :route])))
 
 (defn serialize-edn
   "Serialize given data structure into string"
@@ -120,17 +106,40 @@
       nil
       (eval-str s))))
 
+(defn prev-state
+  []
+  (swap! tooldb update-in [:active_state] #(dec (:active_state @tooldb)))
+  (set-app-state (get (:states @tooldb) (:active_state @tooldb)))
+  (toolbar/render @tooldb))
+
+(defn next-state
+  []
+  (swap! tooldb update-in [:active_state] #(inc (:active_state @tooldb)))
+  (set-app-state (get (:states @tooldb) (:active_state @tooldb)))
+  (toolbar/render @tooldb))
+
+(defn rewind
+  [eid]
+  (case eid
+    "mathom_toolbar_prev" (prev-state)
+    "mathom_toolbar_next" (next-state)))
+
+(defn setup-toolbar
+  []
+  (toolbar/setup)
+  (toolbar/render @tooldb)
+  (toolbar/attach-listener rewind))
+
+
 ;;
 ;; Sample App
 ;;
-
-(def appdb (atom {}))
 
 (defn initialize-db
   "Creates closure for app database
   from given data as base map"
   [data]
-  (swap! appdb data)
+  (reset! appdb data)
   {:update  (fn [key val]
               (swap! appdb #(assoc % key val))
               (save-state @appdb))
