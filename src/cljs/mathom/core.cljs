@@ -61,6 +61,10 @@
   (swap! tooldb update-in [:active_state] #(dec (count (:states @tooldb))))
   (toolbar/render @tooldb))
 
+(defn set-app-state
+  [state]
+  )
+
 (defn serialize-edn
   "Serialize given data structure into string"
   [data]
@@ -120,17 +124,19 @@
 ;; Sample App
 ;;
 
+(def appdb (atom {}))
+
 (defn initialize-db
   "Creates closure for app database
   from given data as base map"
   [data]
-  (let [cdb (atom data)]
-    {:update  (fn [key val]
-                (swap! cdb #(assoc % key val))
-                (save-state @cdb))
-     :query   (fn [key]
-                (get @cdb key))
-     :persist (fn [] (serialize-local "data" (save-route @cdb)))}))
+  (swap! appdb data)
+  {:update  (fn [key val]
+              (swap! appdb #(assoc % key val))
+              (save-state @appdb))
+   :query   (fn [key]
+              (get @appdb key))
+   :persist (fn [] (serialize-local "data" (save-route @appdb)))})
 
 (defn index_view
   [{:keys [update query persist]} ctrl]
