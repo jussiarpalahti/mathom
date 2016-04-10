@@ -33,7 +33,11 @@
 (def tooldb (atom {:active_state nil :states []}))
 (declare serialize-local)
 
-(defn slice-states
+(defn slice-vec
+  "Get a subvec of given vec
+  from start to cursor or end
+  of vec if cursor is nil
+  with item added to the end"
   [states state active]
   (let [cursor (if (nil? active) (count states) (inc active))]
     (conj (subvec states 0 cursor) state)))
@@ -45,11 +49,12 @@
   (assoc state ::meta {:route (.route js/m)}))
 
 (defn save-state
-  "Saves state into tooldb :states array and sets
-  active_state point to last item of array"
+  "Saves state into tooldb :states array and
+  local storage under \"tooldb\".
+  Sets active_state point to last item of array"
   [state]
   (swap! tooldb update-in [:states]
-         #(slice-states % (save-route state) (:active_state @tooldb)))
+         #(slice-vec % (save-route state) (:active_state @tooldb)))
   (swap! tooldb update-in [:active_state] #(dec (count (:states @tooldb))))
   (serialize-local "tooldb" @tooldb)
   (toolbar/render @tooldb))
@@ -129,11 +134,23 @@
   (set-app-state (get (:states @tooldb) (:active_state @tooldb)))
   (toolbar/render @tooldb))
 
+(defn clear-states
+  "Empty app state from local storage
+  and app databases"
+  []
+  (reset! appdb {})
+  (reset! tooldb {:active_state nil :states []})
+  (remove-item! "data")
+  (remove-item! "tooldb")
+  (toolbar/render @tooldb)
+  (.redraw js/m))
+
 (defn rewind
   [eid]
   (case eid
     "mathom_toolbar_prev" (prev-state)
-    "mathom_toolbar_next" (next-state)))
+    "mathom_toolbar_next" (next-state)
+    "mathom_toolbar_clear" (clear-states)))
 
 (defn setup-toolbar
   []
@@ -194,6 +211,13 @@
 ;(.route js/m "/")
 
 (setup-toolbar)
+
+;
+; First state should go to saved states
+; TODO: Check init logic and fix this hack...
+;
+(if (empty? (:states @tooldb))
+  (save-state @appdb))
 
 ; Paredit mnemonics
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

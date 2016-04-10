@@ -70,20 +70,25 @@
     (set-content (.getElementById js/document "mathom_toolbar")
                  (h "div" {} [(h "h1" {} ["Mathom Toolbar"])
                               (h "button"
-                                 {:id       "mathom_toolbar_prev"
+                                 {:id "mathom_toolbar_prev"
                                   :class "pure-button"
                                   :disabled (not prev)}
-                                 ["Previous state"])
+                                 ["&lt; &lt;"])
                               (h "button"
-                                 {:id       "mathom_toolbar_next"
+                                 {:id "mathom_toolbar_next"
                                   :class "pure-button"
                                   :disabled (not next)}
-                                 ["Next state"])
+                                 ["&gt; &gt;"])
                               (h "span"
                                  {:id "mathom_toolbar_states"}
                                  ["Saved states: " (count states)
                                   (if active (clojure.string/join
-                                               ["Active state: " (inc active)]))])]))))
+                                               ["Active state: " (inc active)]))])
+                              (h "button"
+                                 {:id       "mathom_toolbar_clear"
+                                  :class    "pure-button"
+                                  :disabled (< (count states) 1)}
+                                 ["Clear"])]))))
 
 
 (defn ^:dynamic handle-event
